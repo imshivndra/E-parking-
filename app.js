@@ -5,7 +5,8 @@ const fileUpload = require("express-fileupload");
 const morgan = require("morgan");
 
 //environvent variable config
-require('dotenv').config()
+const dotenv=require('dotenv');
+dotenv.config();
 
 //Assigning port for application
 const port = process.env.PORT || 6000;
