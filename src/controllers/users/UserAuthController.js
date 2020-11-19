@@ -13,14 +13,18 @@ const speakeasy = require("speakeasy");
 const { sendMail } = require("../../mailService/mailer");
 
 const SignUp = async (req, res) => {
-  let { email, password } = req.body;
+  let { email, password,userType } = req.body;
   console.log("mail key", process.env.mailApiKey);
 
   //Default profile picture URL
   const userProfileImage =
     "https://res.cloudinary.com/hmwv9zdrw/image/upload/v1600970783/user_vopbzk.png";
 
-  //email and password validation before inserting user
+
+    if (!userType)
+    return badRequestError(res, "userType not defined");
+  
+    //email and password validation before inserting user
   if (!validator.isEmail(email || ""))
     return badRequestError(res, "Enter a valid email address");
   if (password === "") return badRequestError(res, "password can not be empty");
@@ -43,7 +47,7 @@ const SignUp = async (req, res) => {
   //inserting user details
   let [err, user_inserted] = await to(
     Users.query()
-      .insert({ email, password, userProfileImage, otp })
+      .insert({ email, password, userProfileImage,userType, otp })
       .returning("*")
   );
   if (err) badRequestError(res, "unable to insert user");
@@ -59,6 +63,7 @@ const SignUp = async (req, res) => {
 //verifies signup  OTP
 
 const VerifyOTP = async (req, res) => {
+  let access_token;
   let { otp, email } = req.body;
   let token_validates = await speakeasy.totp.verify({
     secret: process.env.OTP_SECRET + email,
@@ -83,26 +88,31 @@ const VerifyOTP = async (req, res) => {
       console.log(error);
       return unverifiedError(res, "Wrong OTP");
     }
-    if (verified) {
-      let access_token = jwt.sign(
-        { email: verified.email, userId: verified.id },
-        process.env.JWT_SECRET,
+   
+       access_token = jwt.sign(
+        { email: verified.email, userId: verified.id,userType:verified.userType},
+        process.env.JWT_USER_SECRET,
         {
           expiresIn: "5h",
         }
-      );
+      )
+    
+     
+        
       const isEmailVerified = verified.isEmailVerified;
 
       res.setHeader("Authorization", access_token);
       res.setHeader("access-control-expose-headers", "authorization");
       return okResponse(res, { isEmailVerified }, "email verified");
-    }
-  } else return badRequestError(res, "wrong OTP");
+        }   
+   else return badRequestError(res, "wrong OTP");
 };
+
 
 //Login User
 
 const Login = async (req, res) => {
+  let access_token;
   let { email, password } = req.body;
   if (!validator.isEmail(email || ""))
     return badRequestError(res, "Enter a valid email address ");
@@ -117,19 +127,22 @@ const Login = async (req, res) => {
   if (user_returned.isEmailVerified === true) {
     //checking password
     if (await bcrypt.compare(password, user_returned.password)) {
-      //Generating JWT token on correct password
-      let access_token = await jwt.sign(
-        { email, userId: user_returned.id },
-        process.env.JWT_SECRET,
+      //Generating JWT token on correct password for USER type
+
+      
+       access_token = await jwt.sign(
+        { email, userId: user_returned.id,userType:user_returned.userType },
+        process.env.JWT_USER_SECRET,
         {
           expiresIn: "5h",
         }
       );
+           
       res.setHeader("Authorization", access_token);
       res.setHeader("access-control-expose-headers", "authorization");
 
       delete user_returned.password;
-      return loginResponse(res, user_returned, true, "logged in successfully");
+      return okResponse(res,user_returned,"loged in successfully");
     }
     //Error returned when password is invalid
     return unverifiedError(res, "invalid password");
@@ -201,7 +214,7 @@ const ResetLink = (req, res) => {
   jwt.verify(verification_link, process.env.JWT_SECRET, (error, result) => {
     if (error) return badRequestError(res, "not verified");
     else {
-      let reset_token = jwt.sign({ email: result.email }, JWT_SECRET, {
+      let reset_token = jwt.sign({ email: result.email }, process.env.JWT_SECRET, {
         expiresIn: "600s",
       });
       return okResponse(res, reset_token, "verified");
@@ -211,6 +224,7 @@ const ResetLink = (req, res) => {
 
 //reset password
 const ResetPassword = async (req, res) => {
+  let access_token;
   let { reset_token, password } = req.body;
   //verifying reset token for changing password
   jwt.verify(
@@ -230,11 +244,16 @@ const ResetPassword = async (req, res) => {
         if (error) return badRequestError(res, "unable to insert password");
 
         delete user_updated.password;
-        let access_token = jwt.sign(
-          { email, userId: user_updated.id },
-          JWT_SECRET,
+
+        //Generating JWT token  for USER type
+       
+         access_token = jwt.sign(
+          { email, userId: user_updated.id,userType:user_updated.userType },
+          process.env.JWT_USER_SECRET,
           { expiresIn: "2h" }
         );
+         
+
         res.setHeader("Authorization", access_token);
         res.setHeader("access-control-expose-headers", "authorization");
 
@@ -245,7 +264,7 @@ const ResetPassword = async (req, res) => {
 };
 // Change user password
 const ChangePassword = async (req, res) => {
-  let { new_password, old_password } = req.body;
+  let { new_password, old_password,email } = req.body;
   if (!email) return badRequestError(res, "email field is empty");
   if (!new_password || !old_password)
     return badRequestError(res, "password field is empty");

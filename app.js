@@ -37,9 +37,11 @@ app
 
 //API routes
 const user = require("./src/routes/index").user;
+const host=require("./src/routes/index").host;
 
 //REST API end points
 app.use("/user", user);
+app.use('/host',host);
 
 //Server port
 app.listen(port, () => {

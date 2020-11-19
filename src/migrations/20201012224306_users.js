@@ -9,6 +9,7 @@ table.boolean("isEmailVerified").notNullable().defaultTo(false);
 table.string("otp");
 table.string("userProfileImage");
 table.string("mobileNo");
+table.enu("userType",["USER","HOST"]);
 table.timestamps(false,true);
   });
 };

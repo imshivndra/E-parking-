@@ -1,4 +1,5 @@
 const user=require('./user/UserRoute');
+const host=require("./host/hostRoute");
 
 
 
@@ -8,5 +9,6 @@ const user=require('./user/UserRoute');
 
 
 module.exports={
-    user
+    user,
+    host
 }
