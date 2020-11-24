@@ -7,14 +7,14 @@ class Locations extends Model {
     return 'locations';
   }
   static get relationMappings(){
-  const Spots=require("../models/spotModel");
+  const Bookings=require("../models/bookingModel");
   return{
-    spots:{
+    bookings:{
       relation:Model.HasManyRelation,
-      modelClass:Spots,
+      modelClass:Bookings,
       join:{
         from:"locations.id",
-        to:"spots.parkingId"
+        to:"bookings.parkingId"
       }
     }
   }
