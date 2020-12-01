@@ -21,7 +21,9 @@ router.post('/changeuserpassword',VerifyUserJWT,UserAuthController.ChangePasswor
 
 //User search API
 router.post('/nearbyparking',VerifyUserJWT,UserSearchController.NearByParkings);
-router.post('/timeslot',VerifyUserJWT,UserSearchController.CheckTimeSlot);
+router.get('/parkingdetails',UserSearchController.ParkingDetails);
+
+//router.post('/timeslot',UserSearchController.CheckTimeSlot);
 router.post('/bookspace',VerifyUserJWT,UserSearchController.BookParkingSpace);
 
 
