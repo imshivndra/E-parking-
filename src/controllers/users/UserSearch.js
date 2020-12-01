@@ -14,6 +14,25 @@ const knexConfig = require("../../../knexfile")[
 ];
 const knex = require("knex")(knexConfig);
 
+const ParkingDetails = async (req, res) => {
+  let { id } = req.body;
+  //let { userId } = req.user;
+console.log(id);
+  let [error, result] = await to(
+    Locations.query()
+      .where("id", id)
+      .select("id", "parkingAddress","parkingName", "parkingDescription", "parkingCost", "parkingImage")
+      .throwIfNotFound()
+  );
+  if (error) {
+    console.log("error : ", error);
+    return badRequestError(res, "NO description for this locationID ");
+  }
+  return okResponse(res, result, "query succed");
+};
+
+
+
 const NearByParkings = async (req, res) => {
   let { lon, lat } = req.body;
   let { userId } = req.user;
@@ -35,7 +54,10 @@ const NearByParkings = async (req, res) => {
   return okResponse(res, result, "query succed");
 };
 
-const CheckTimeSlot = async (req, res) => {
+
+
+
+/*const CheckTimeSlot = async (req, res) => {
   let { parkingId, bookingStartDateTime, bookingEndDateTime } = req.body;
   let spotCount;
 
@@ -80,7 +102,7 @@ const CheckTimeSlot = async (req, res) => {
   }
 
   return badRequestError(res, "All parking spaces are full");
-};
+};*/
 //Book Parking Space
 
 const BookParkingSpace = async (req, res) => {
@@ -173,4 +195,4 @@ const BookParkingSpace = async (req, res) => {
   }
 };
 
-module.exports = { NearByParkings, CheckTimeSlot, BookParkingSpace };
+module.exports = { ParkingDetails, NearByParkings,  BookParkingSpace };

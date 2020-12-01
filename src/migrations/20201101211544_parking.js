@@ -4,8 +4,11 @@ exports.up = function (knex) {
        table.uuid("userId").references("id").inTable("users").onDelete("CASCADE");
        table.text("parkingAddress");
        table.text("parkingName");
-       table.boolean("isApproved").defaultTo(false);
+       table.boolean("isApproved").defaultTo(true);
        table.integer("noOfSpots").notNull();
+       table.text("parkingDescription");
+       table.text("parkingImage").defaultTo("https://www.securityindustry.org/wp-content/uploads/sites/3/2018/05/noimage.png");;
+       table.text("parkingCost");
        table.timestamps(false,true);
        table.specificType("geom ", "geometry(POINT, 4326)");
      }).createTable("bookings",(table)=>{
@@ -13,7 +16,8 @@ exports.up = function (knex) {
         table.uuid("parkingId").references("id").inTable("locations");
         table.bigInteger("startDateTime");
         table.bigInteger("endDateTime");
-
+        table.integer("spotNo").notNull();
+        table.uuid("userId").references("id").inTable("users");
       })
      ;
    };

@@ -14,14 +14,17 @@ const knexConfig = require("../../../knexfile")[
 const knex = require("knex")(knexConfig);
 
 const AddParking = async (req, res) => {
-  let { lat, lon, parkingAddress, noOfSpots } = req.body;
+  let { lat, lon, parkingAddress, parkingName,noOfSpots,parkingCost,parkingDescription } = req.body;
   let { userId } = req.user;
-
+console.log(req.body);
   const [error, result] = await to(
     Locations.query().insert({
       userId: userId,
       noOfSpots:noOfSpots,
+      parkingName:parkingName,
       parkingAddress: parkingAddress,
+      parkingCost:parkingCost,
+      parkingDescription: parkingDescription,
       geom: knex.raw(
         `ST_SetSRID(ST_MakePoint(${lon}, ${lat}), 4326)`
       )
