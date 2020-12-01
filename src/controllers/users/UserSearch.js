@@ -34,7 +34,7 @@ console.log(id);
 };
 
 
-
+// aand
 const NearByParkings = async (req, res) => {
   let { lon, lat } = req.body;
   let { userId } = req.user;
