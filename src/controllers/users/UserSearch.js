@@ -14,6 +14,8 @@ const knexConfig = require("../../../knexfile")[
 ];
 const knex = require("knex")(knexConfig);
 
+
+
 const ParkingDetails = async (req, res) => {
   let { id } = req.body;
   //let { userId } = req.user;
@@ -41,7 +43,7 @@ const NearByParkings = async (req, res) => {
     Locations.query()
       .where(
         knex.raw(
-          `ST_DWithin(geom, ST_MakePoint(${lon},${lat})::geography, 500)`
+          `ST_DWithin(geom, ST_MakePoint(${lon},${lat})::geography, 1500)`
         )
       )
       .returning("id", "parkingAddress")
