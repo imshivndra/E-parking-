@@ -13,6 +13,29 @@ const knexConfig = require("../../../knexfile")[
 ];
 const knex = require("knex")(knexConfig);
 
+
+const HostBookings = async (req, res) => {
+  //let { lat, lon, parkingAddress, parkingName,noOfSpots,parkingCost,parkingDescription } = req.body;
+  let { userId } = req.user;
+console.log(req.body);
+  const [error, result] = await to(
+    Locations.query()
+      .where("userId", userId)
+      .select( "parkingAddress", "parkingName","noOfSpots","parkingCost","parkingDescription")
+      .throwIfNotFound()
+  );
+  if (error) {
+    console.log("error : ", error);
+    return badRequestError(res, "NO location registered for this ID ");
+  }
+  return okResponse(res, result, "query succed");
+};
+
+
+
+
+
+
 const AddParking = async (req, res) => {
   let { lat, lon, parkingAddress, parkingName,noOfSpots,parkingCost,parkingDescription } = req.body;
   let { userId } = req.user;
@@ -39,4 +62,4 @@ console.log(req.body);
 
 
 
-module.exports = { AddParking };
+module.exports = { AddParking,HostBookings, };
