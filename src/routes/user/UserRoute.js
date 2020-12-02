@@ -20,8 +20,8 @@ router.post('/resetpassword',UserAuthController.ResetPassword);
 router.post('/changeuserpassword',VerifyUserJWT,UserAuthController.ChangePassword);
 
 //User search API
-router.post('/nearbyparking',VerifyUserJWT,UserSearchController.NearByParkings);
-router.get('/parkingdetails',UserSearchController.ParkingDetails);
+router.post('/nearbyparking',UserSearchController.NearByParkings);
+router.get('/parkingdetails',VerifyUserJWT,UserSearchController.ParkingDetails);
 
 //router.post('/timeslot',UserSearchController.CheckTimeSlot);
 router.post('/bookspace',VerifyUserJWT,UserSearchController.BookParkingSpace);
