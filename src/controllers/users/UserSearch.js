@@ -12,18 +12,26 @@ const Bookings = require("../../models/bookingModel");
 const knexConfig = require("../../../knexfile")[
   process.env.NODE_ENV || "development"
 ];
+const express = require("express");
 const knex = require("knex")(knexConfig);
 
-
+const app = express();
 
 const ParkingDetails = async (req, res) => {
   let { id } = req.body;
   //let { userId } = req.user;
-console.log(id);
+  console.log(id);
   let [error, result] = await to(
     Locations.query()
       .where("id", id)
-      .select("id", "parkingAddress","parkingName", "parkingDescription", "parkingCost", "parkingImage")
+      .select(
+        "id",
+        "parkingAddress",
+        "parkingName",
+        "parkingDescription",
+        "parkingCost",
+        "parkingImage"
+      )
       .throwIfNotFound()
   );
   if (error) {
@@ -32,7 +40,6 @@ console.log(id);
   }
   return okResponse(res, result, "query succed");
 };
-
 
 // aand
 const NearByParkings = async (req, res) => {
@@ -56,55 +63,44 @@ const NearByParkings = async (req, res) => {
   return okResponse(res, result, "query succed");
 };
 
+//search parking when user sends a location string
+
+const NearByParkingsByPlace = async (req, res) => {
+  let { searchLocation } = req.body;
+  
+  let mapBoxURL=`https://api.mapbox.com/geocoding/v5/mapbox.places/${searchLocation}.json?access_token=`+process.env.mapboxKey;
+   app.post(mapBoxURL, (error, geometry) => {
+    if (error) {
+      return badRequestError(res, "please enter a valid location");
+    }
+    let lat = geometry.body.features[0].center[1];
+    let lon = geometry.body.features[0].center[0];
+    console.log("lat : ", lat);
+    console.log("lon : ", lon);
 
 
+    let [error, result] = await to(
+      Locations.query()
+        .where(
+          knex.raw(
+            `ST_DWithin(geom, ST_MakePoint(${lon},${lat})::geography, 1500)`
+          )
+        )
+        .returning("id", "parkingAddress")
+        .throwIfNotFound()
+    );
+    if (error) {
+      console.log("error : ", error);
+      return badRequestError(res, "no nearby location found ");
+    }
+    return okResponse(res, result, "query succed");
 
-/*const CheckTimeSlot = async (req, res) => {
-  let { parkingId, bookingStartDateTime, bookingEndDateTime } = req.body;
-  let spotCount;
 
-  let [error, slot_details] = await to(
-    Locations.query()
-      .where("id", parkingId)
-      .select("noOfSpots", "id")
-      .withGraphFetched("bookings(countSpots)")
-      .modifiers({
-        countSpots(builder) {
-          builder
-            .groupBy("parkingId")
-            .count("spotNo")
-            .where((builder) => {
-              builder
-                .where("startDateTime", "<=", bookingStartDateTime)
-                .andWhere("endDateTime", ">=", bookingStartDateTime);
-            })
-            .orWhere((builder) => {
-              builder
-                .where("startDateTime", "<=", bookingEndDateTime)
-                .andWhere("endDateTime", ">=", bookingEndDateTime);
-            });
-        },
-      })
-  );
+  });
 
-  if (error) {
-    console.log("error : ", error);
-    return badRequestError(res, "no nearby location found ");
-  }
+  
+};
 
-  if (slot_details[0].bookings.length == 0) {
-    spotCount = 0;
-  } else {
-    let count = slot_details.bookings[0].count;
-    spotCount = parseInt(count, 10);
-  }
-
-  if (slot_details[0].noOfSpots > spotCount) {
-    return okResponse(res, slot_details, "Succed ! ");
-  }
-
-  return badRequestError(res, "All parking spaces are full");
-};*/
 //Book Parking Space
 
 const BookParkingSpace = async (req, res) => {
@@ -197,4 +193,4 @@ const BookParkingSpace = async (req, res) => {
   }
 };
 
-module.exports = { ParkingDetails, NearByParkings,  BookParkingSpace };
+module.exports = { ParkingDetails, NearByParkings, BookParkingSpace, NearByParkingsByPlace };
