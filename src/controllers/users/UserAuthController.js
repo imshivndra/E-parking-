@@ -297,7 +297,8 @@ const ChangePassword = async (req, res) => {
 //ignore only for testing
 
 const Delete = async (req, res) => {
-  let [error, deleted] = await to(Users.query().delete());
+  let {id}=req.body;
+  let [error, deleted] = await to(Users.query().where("id",id).delete().throwIfNotFound());
   if (error) badRequestError(res, "unable to delete");
   okResponse(res, deleted, "delete successfull");
 };
