@@ -69,8 +69,9 @@ const NearByParkingsByPlace = async (req, res) => {
   let { searchLocation } = req.body;
   
   let mapBoxURL=`https://api.mapbox.com/geocoding/v5/mapbox.places/${searchLocation}.json?access_token=`+process.env.mapboxKey;
-   app.post(mapBoxURL, (error, geometry) => {
-    if (error) {
+   app.post(mapBoxURL, (failed, geometry) => {
+    if (failed) {
+      console.log("Mapbox API Failed",failed);
       return badRequestError(res, "please enter a valid location");
     }
     let lat = geometry.body.features[0].center[1];
