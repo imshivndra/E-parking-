@@ -80,7 +80,7 @@ const NearByParkingsByPlace = async (req, res) => {
     console.log("lon : ", lon);
 
 
-    let [error, result] = await to(
+    let [error, result] =  to(
       Locations.query()
         .where(
           knex.raw(
