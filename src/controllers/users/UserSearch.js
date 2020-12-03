@@ -5,6 +5,7 @@ const {
   unverifiedError,
   loginResponse,
 } = require("../../../global_functions");
+const axios = require("axios");
 
 const Locations = require("../../models/locationsModel");
 const Bookings = require("../../models/bookingModel");
@@ -67,39 +68,38 @@ const NearByParkings = async (req, res) => {
 
 const NearByParkingsByPlace = async (req, res) => {
   let { searchLocation } = req.body;
-  
-  let mapBoxURL=`https://api.mapbox.com/geocoding/v5/mapbox.places/${searchLocation}.json?access_token=`+process.env.mapboxKey;
-   app.post(mapBoxURL, (failed, geometry) => {
-    if (failed) {
-      console.log("Mapbox API Failed",failed);
-      return badRequestError(res, "please enter a valid location");
-    }
-    let lat = geometry.body.features[0].center[1];
-    let lon = geometry.body.features[0].center[0];
-    console.log("lat : ", lat);
-    console.log("lon : ", lon);
+  console.log(searchLocation);
 
+  let mapBoxURL =
+    "https://api.mapbox.com/geocoding/v5/mapbox.places/" +
+    searchLocation +
+    ".json?access_token=" +
+    process.env.mapboxKey;
+  console.log("MBURL : ", mapBoxURL);
 
-    let [error, result] =  to(
-      Locations.query()
-        .where(
-          knex.raw(
-            `ST_DWithin(geom, ST_MakePoint(${lon},${lat})::geography, 1500)`
-          )
+  const geometry = await axios.get(mapBoxURL);
+
+  let lat = geometry.data.features[0].center[1];
+  let lon = geometry.data.features[0].center[0];
+  console.log("lat : ", lat);
+  console.log("lon : ", lon);
+
+  console.log("above query");
+  let [error, result] = await to(
+    Locations.query()
+      .where(
+        knex.raw(
+          `ST_DWithin(geom, ST_MakePoint(${lon},${lat})::geography, 1500)`
         )
-        .returning("id", "parkingAddress")
-        .throwIfNotFound()
-    );
-    if (error) {
-      console.log("error : ", error);
-      return badRequestError(res, "no nearby location found ");
-    }
-    return okResponse(res, result, "query succed");
-
-
-  });
-
-  
+      )
+      .returning("id", "parkingAddress")
+      .throwIfNotFound()
+  );
+  if (error) {
+    console.log("error : ", error);
+    return badRequestError(res, "no nearby location found ");
+  }
+  return okResponse(res, result, "query succed");
 };
 
 //Book Parking Space
@@ -194,4 +194,9 @@ const BookParkingSpace = async (req, res) => {
   }
 };
 
-module.exports = { ParkingDetails, NearByParkings, BookParkingSpace, NearByParkingsByPlace };
+module.exports = {
+  ParkingDetails,
+  NearByParkings,
+  BookParkingSpace,
+  NearByParkingsByPlace,
+};

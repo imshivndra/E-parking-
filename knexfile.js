@@ -14,8 +14,8 @@ module.exports = {
       },
       connection: {
         host: "localhost",
-        user: "root",
-        password: "root",
+        user: "postgres",
+        password: "postgres",
         database: "E-parking"           // Create Database with same name on your local machine in postgres or change the name these with your database name.
       }
     },
