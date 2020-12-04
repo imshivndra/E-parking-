@@ -31,7 +31,8 @@ const ParkingDetails = async (req, res) => {
         "parkingName",
         "parkingDescription",
         "parkingCost",
-        "parkingImage"
+        "parkingImage",
+        "noOfSpots"
       )
       .throwIfNotFound()
   );
