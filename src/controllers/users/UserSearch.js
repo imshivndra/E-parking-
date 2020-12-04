@@ -51,7 +51,7 @@ const NearByParkings = async (req, res) => {
     Locations.query()
       .where(
         knex.raw(
-          `ST_DWithin(geom, ST_MakePoint(${lon},${lat})::geography, 1500)`
+          `ST_DWithin(geom, ST_MakePoint(${lon},${lat})::geography, 5000)`
         )
       )
       .returning("id", "parkingAddress")
