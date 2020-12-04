@@ -49,6 +49,7 @@ const NearByParkings = async (req, res) => {
 
   let [error, result] = await to(
     Locations.query()
+      .select(knex.raw(`ST_X(geom) as lon, ST_Y(geom) as lat,"id","parkingName","parkingAddress","parkingImage","parkingCost"`))
       .where(
         knex.raw(
           `ST_DWithin(geom, ST_MakePoint(${lon},${lat})::geography, 5000)`
