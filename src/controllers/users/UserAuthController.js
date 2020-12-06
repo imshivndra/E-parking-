@@ -103,7 +103,7 @@ const VerifyOTP = async (req, res) => {
 
       res.setHeader("Authorization", access_token);
       res.setHeader("access-control-expose-headers", "authorization");
-      return okResponse(res, { isEmailVerified }, "email verified");
+      return okResponse(res, { isEmailVerified,token:access_token }, "email verified");
         }   
    else return badRequestError(res, "wrong OTP");
 };
@@ -142,6 +142,7 @@ const Login = async (req, res) => {
       res.setHeader("access-control-expose-headers", "authorization");
 
       delete user_returned.password;
+      user_returned.token=access_token;
       return okResponse(res,user_returned,"loged in successfully");
     }
     //Error returned when password is invalid
