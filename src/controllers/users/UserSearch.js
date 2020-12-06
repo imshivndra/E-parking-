@@ -50,7 +50,7 @@ const NearByParkings = async (req, res) => {
 
   let [error, result] = await to(
     Locations.query()
-      .select(knex.raw(`ST_X(geom) as lon, ST_Y(geom) as lat,"id","parkingName","parkingAddress","parkingImage","parkingCost"`))
+      .select(knex.raw(`ST_X(geom) as lon, ST_Y(geom) as lat,"id","parkingName","parkingAddress","parkingImage","parkingCost","parkingDescription","noOfSpots"`))
       .where(
         knex.raw(
           `ST_DWithin(geom, ST_MakePoint(${lon},${lat})::geography, 5000)`
@@ -89,7 +89,7 @@ const NearByParkingsByPlace = async (req, res) => {
   console.log("above query");
   let [error, result] = await to(
     Locations.query()
-    .select(knex.raw(`ST_X(geom) as lon, ST_Y(geom) as lat,"id","parkingName","parkingAddress","parkingImage","parkingCost"`))
+    .select(knex.raw(`ST_X(geom) as lon, ST_Y(geom) as lat,"id","parkingName","parkingAddress","parkingImage","parkingCost","parkingDescription","noOfSpots"`))
       .where(
         knex.raw(
           `ST_DWithin(geom, ST_MakePoint(${lon},${lat})::geography, 1500)`
