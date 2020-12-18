@@ -31,6 +31,7 @@
     "objection": "^2.2.3",
     "parse-error": "^0.2.0",
     "pg": "^8.4.1",
+    "razorpay": "^2.0.6",
     "speakeasy": "^2.0.0",
     "validator": "^13.1.17"
   }
