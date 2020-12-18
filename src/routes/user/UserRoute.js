@@ -42,6 +42,6 @@ router.post("/bookspace", VerifyUserJWT, UserSearchController.BookParkingSpace);
 router.delete("/delete", UserAuthController.Delete);
 
 // transaction Routes
-router.post("/payment", VerifyUserJWT, PaymentController.initiateOrder);
+router.post("/payment", PaymentController.initiateOrder);
 
 module.exports = router;
