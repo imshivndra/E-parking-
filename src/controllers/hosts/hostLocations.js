@@ -21,7 +21,7 @@ console.log(req.body);
   const [error, result] = await to(
     Locations.query()
       .where("userId", userId)
-      .select( "parkingAddress", "parkingName","noOfSpots","parkingCost","parkingDescription")
+      .select( "parkingAddress", "parkingName","noOfSpots","parkingCost","parkingDescription","parkingImage")
       .throwIfNotFound()
   );
   if (error) {
