@@ -17,6 +17,10 @@ const razorypay = new Razorypay({
 const initiateOrder = async (req, res) => {
   const data = req.body;
 
+  console.log(data);
+
+  console.log(typeof data.amount);
+
   razorypay.orders.create(data, (err, order) => {
     if (err) {
       return badRequestError(res, err);
